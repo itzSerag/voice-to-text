@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice to Text</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="mb-4">Voice to Text</h1>
+        <button id="startRecordBtn" class="btn btn-primary">Start Recording</button>
+        <button id="stopRecordBtn" class="btn btn-danger" disabled>Stop Recording</button>
+        <div id="resultContainer" class="mt-4"></div>
+        
+        <!-- List of recognized words -->
+        <div id="wordsListContainer" class="mt-4">
+            <h2>Recognized Words:</h2>
+            <ul id="wordsList"></ul>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.9.2/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        const startRecordBtn = document.getElementById('startRecordBtn');
+        const stopRecordBtn = document.getElementById('stopRecordBtn');
+        const resultContainer = document.getElementById('resultContainer');
+        const wordsListContainer = document.getElementById('wordsList');
+
+        let recognition;
+        let recognizedWords = [];
+
+        startRecordBtn.addEventListener('click', () => {
+            startRecordBtn.disabled = true;
+            stopRecordBtn.disabled = false;
+            resultContainer.innerText = '';
+            recognizedWords = [];
+            displayWordsList();
+
+            recognition = new webkitSpeechRecognition();
+            recognition.lang = 'en-US';
+            recognition.continuous = true;
+            recognition.interimResults = true;
+
+            recognition.onresult = (event) => {
+                const result = event.results[event.results.length - 1];
+                const text = result[0].transcript;
+
+                recognizedWords.push(text);
+                displayWordsList();
+            };
+
+            recognition.start();
+        });
+
+        stopRecordBtn.addEventListener('click', () => {
+            startRecordBtn.disabled = false;
+            stopRecordBtn.disabled = true;
+            recognition.stop();
+        });
+
+        function displayWordsList() {
+            wordsListContainer.innerHTML = '';
+            recognizedWords.forEach(word => {
+                const listItem = document.createElement('li');
+                listItem.textContent = word;
+                wordsListContainer.appendChild(listItem);
+            });
+        }
+    </script>
+</body>
+</html>
